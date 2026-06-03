@@ -11,7 +11,7 @@
       (package-refresh-contents))
     (package-install 'use-package)))
 
-;;Do not show those confusing warnings when installing packages
+;;Do not show warnings when installing packages
 (add-to-list 'display-buffer-alist
              '("\\`\\*\\(Warnings\\|Compile-Log\\)\\*\\'"
                (display-buffer-no-window)
@@ -19,7 +19,7 @@
 
 ;Delete the selected text upon text insertion
 (use-package delsel
-  :ensure nil ;
+  :ensure nil
   :hook (after-init . delete-selection-mode))
 
 ;;Load black theme
@@ -61,7 +61,7 @@
 
 ;;Show last used command
 (use-package savehist
-  :ensure nil ;
+  :ensure nil
   :hook (after-init . savehist-mode))
 (custom-set-variables
  '(package-selected-packages '(orderless marginalia)))
