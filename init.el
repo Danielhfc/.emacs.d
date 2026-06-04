@@ -46,6 +46,17 @@
 ;;Start in fullscreen mode
 (add-hook 'window-setup-hook #'toggle-frame-maximized)
 
+;;Hotkeys for org-mode
+ (global-set-key (kbd "C-c l") #'org-store-link)
+     (global-set-key (kbd "C-c a") #'org-agenda)
+     (global-set-key (kbd "C-c c") #'org-capture)
+
+;;Set up magit
+(use-package magit
+  :ensure t
+  :bind (("C-x g" . magit-status)
+         ("C-x C-g" . magit-dispatch)))
+
 ;;Show commands description
 (use-package marginalia
   :ensure t
@@ -63,13 +74,3 @@
 (use-package savehist
   :ensure nil
   :hook (after-init . savehist-mode))
-(custom-set-variables
- '(package-selected-packages '(orderless marginalia)))
-(custom-set-faces.
- )
-
-;;Set up magit
-(use-package magit
-  :ensure t
-  :bind (("C-x g" . magit-status)
-         ("C-x C-g" . magit-dispatch)))
