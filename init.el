@@ -3,13 +3,14 @@
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("org" . "https://orgmode.org/elpa/")
-                         ("elpa" . "https://elpa.gnu.org/packages/")))
+                         ("elpa" . "https://elpa.gnu.org/packages/")
+                         ("gnu" . "https://elpa.gnu.org/packages/")))
 
 (package-initialize)
 (unless package-archive-contents
   (package-refresh-contents))
 
-  ;; Initialize use-package on non-Linux platforms
+;; Initialize use-package on non-Linux platforms
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 
@@ -17,8 +18,8 @@
 (setq use-package-always-ensure t)
 
 ;; Core settings
-(setq ;; Yes, this is Emacs
-      inhibit-startup-message t
+(setq
+      ;;inhibit-startup-message t
 
       ;; Instruct auto-save-mode to save to the current file, not a backup file
       auto-save-default nil
@@ -70,7 +71,7 @@
         completions-format 'vertical
 
         ;; Sort recently used completions first.
-        completions-sort 'historical
+        ;;completions-sort 'historical
 
         ;; Only show up to 10 lines in the completions window.
         completions-max-height 10
@@ -85,50 +86,10 @@
 (keymap-set minibuffer-local-map "C-p" #'minibuffer-previous-completion)
 (keymap-set minibuffer-local-map "C-n" #'minibuffer-next-completion)
 
-(use-package emacs-solo-rainbow-delimiters
-  :ensure nil
-  :no-require t
-  :defer t
-  :init
-  (defun emacs-solo/rainbow-delimiters ()
-    "Apply simple rainbow coloring to parentheses, brackets, and braces in the current buffer.
-Opening and closing delimiters will have matching colors."
-    (interactive)
-    (let ((colors '(font-lock-keyword-face
-                    font-lock-type-face
-                    font-lock-function-name-face
-                    font-lock-variable-name-face
-                    font-lock-constant-face
-                    font-lock-builtin-face
-                    font-lock-string-face
-                    )))
-      (font-lock-add-keywords
-       nil
-       `((,(rx (or "(" ")" "[" "]" "{" "}"))
-          (0 (let* ((char (char-after (match-beginning 0)))
-                    (depth (save-excursion
-                             ;; Move to the correct position based on opening/closing delimiter
-                             (if (member char '(?\) ?\] ?\}))
-                                 (progn
-                                   (backward-char) ;; Move to the opening delimiter
-                                   (car (syntax-ppss)))
-                               (car (syntax-ppss)))))
-                    (face (nth (mod depth ,(length colors)) ',colors)))
-               (list 'face face)))))))
-    (font-lock-flush)
-    (font-lock-ensure))
+;;Disable tooltips
+(tooltip-mode -1)
 
-  (add-hook 'prog-mode-hook #'emacs-solo/rainbow-delimiters))
-
-;Delete the selected text upon text insertion
-(use-package delsel
-  :ensure nil
-  :hook (after-init . delete-selection-mode))
-
-(setq inhibit-startup-message t)
-(tooltip-mode -1)           ; Disable tooltips
-
-;; Set up the visible bell
+;;Set up the visible bell
 (setq visible-bell t)
 
 ;;Load black theme
@@ -153,7 +114,7 @@ Opening and closing delimiters will have matching colors."
 (setq ring-bell-function 'ignore)
 
 ;;Start in fullscreen mode
-(add-hook 'window-setup-hook #'toggle-frame-maximized)
+(add-hook 'window-setup-hook #'toggle-frame-fullscreen)
 
 (savehist-mode 1)              ;; Save minibuffer history
 (column-number-mode 1)         ;; Show column number on mode line
@@ -167,6 +128,56 @@ Opening and closing delimiters will have matching colors."
 
 ;; Make vertical window separators look nicer in terminal Emacs
 (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
+
+;;Show possible completions for keybinds
+(use-package which-key
+  :init (which-key-mode)
+  :diminish which-key-mode
+  :config
+  (setq which-key-idle-delay 1))
+
+(use-package ivy
+  :diminish
+  :bind (("C-s" . swiper)
+         :map ivy-minibuffer-map
+         ("TAB" . ivy-alt-done)
+         ("C-l" . ivy-next-line)
+         ("C-k" . ivy-previous-line)
+         :map ivy-switch-buffer-map
+         ("C-k" . ivy-previous-line)
+         ("C-l" . ivy-done)
+         ("C-d" . ivy-switch-buffer-kill)
+         :map ivy-reverse-i-search-map
+         ("C-k" . ivy-previous-line)
+         ("C-d" . ivy-reverse-i-search-kill))
+  :config
+    (ivy-mode 1))
+
+(use-package ivy-rich
+  :init
+  (ivy-rich-mode 1))
+
+(use-package counsel
+  :bind (("C-M-j" . 'counsel-switch-buffer)
+         :map minibuffer-local-map
+         ("C-r" . 'counsel-minibuffer-history))
+  :config
+  (counsel-mode 1))
+
+(use-package helpful
+  :custom
+  (counsel-describe-function-function #'helpful-callable)
+  (counsel-describe-variable-function #'helpful-variable)
+  :bind
+  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-key] . helpful-key))
+
+;Delete the selected text upon text insertion
+(use-package delsel
+  :ensure nil
+  :hook (after-init . delete-selection-mode))
 
 ;;Show commands description
 (use-package marginalia
@@ -186,10 +197,80 @@ Opening and closing delimiters will have matching colors."
   :ensure nil
   :hook (after-init . savehist-mode))
 (custom-set-variables
- '(package-selected-packages '(orderless marginalia)))
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(evil-nerd-commenter counsel-projectile projectile company-box lsp-ivy lsp-treemacs lsp-ui lsp-mode orderless marginalia)))
+
+;; Configuration for ide-like when coding
+(defun efs/lsp-mode-setup ()
+  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+  (lsp-headerline-breadcrumb-mode))
+
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :hook (lsp-mode . efs/lsp-mode-setup)
+  :init
+  (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
+  :config
+  (lsp-enable-which-key-integration t))
+
+(use-package lsp-ui
+  :hook (lsp-mode . lsp-ui-mode)
+  :custom
+  (lsp-ui-doc-position 'bottom))
+
+(use-package lsp-treemacs
+  :after lsp)
+
+(use-package lsp-ivy)
+
+(use-package company
+  :after lsp-mode
+  :hook (lsp-mode . company-mode)
+  :bind (:map company-active-map
+         ("<tab>" . company-complete-selection))
+        (:map lsp-mode-map
+         ("<tab>" . company-indent-or-complete-common))
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.0))
+
+(use-package company-box
+  :hook (company-mode . company-box-mode))
+
+(use-package projectile
+  :diminish projectile-mode
+  :config (projectile-mode)
+  :custom ((projectile-completion-system 'ivy))
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :init
+  ;; NOTE: Set this to the folder where you keep your Git repos!
+  (when (file-directory-p "~/Projects/Code")
+    (setq projectile-project-search-path '("~/Projects/Code")))
+  (setq projectile-switch-project-action #'projectile-dired))
+
+(use-package counsel-projectile
+  :config (counsel-projectile-mode))
 
 ;;Set up magit
 (use-package magit
   :ensure t
   :bind (("C-x g" . magit-status)
          ("C-x C-g" . magit-dispatch)))
+
+(use-package evil-nerd-commenter
+  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
