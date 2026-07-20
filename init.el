@@ -296,5 +296,3 @@
       (org-babel-tangle))))
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
-=======
->>>>>>> 98710e72ae63c9bdba813b4f5e710b25217d591a
