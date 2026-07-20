@@ -127,7 +127,7 @@
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;; Make vertical window separators look nicer in terminal Emacs
-(set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
+;; (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
 
 ;;Show possible completions for keybinds
 (use-package which-key
@@ -179,17 +179,6 @@
   :ensure nil
   :hook (after-init . delete-selection-mode))
 
-;;Hotkeys for org-mode
- (global-set-key (kbd "C-c l") #'org-store-link)
-     (global-set-key (kbd "C-c a") #'org-agenda)
-     (global-set-key (kbd "C-c c") #'org-capture)
-
-;;Set up magit
-(use-package magit
-  :ensure t
-  :bind (("C-x g" . magit-status)
-         ("C-x C-g" . magit-dispatch)))
-
 ;;Show commands description
 (use-package marginalia
   :ensure t
@@ -207,7 +196,6 @@
 (use-package savehist
   :ensure nil
   :hook (after-init . savehist-mode))
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -273,6 +261,95 @@
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
+
+(defun efs/first-available-font (fonts)
+    "Return the first font in FONTS that is installed, or nil if none are."
+    (seq-find (lambda (font) (find-font (font-spec :name font))) fonts))
+
+  (defun efs/org-mode-setup ()
+    (org-indent-mode)
+    (variable-pitch-mode 1)
+    (visual-line-mode 1))
+
+  (defun efs/org-font-setup ()
+    ;; Replace list hyphen with dot
+    (font-lock-add-keywords 'org-mode
+                            '(("^ *\\([-]\\) "
+                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+    ;; Set faces for heading levels
+    (dolist (face '((org-level-1 . 1.2)
+                    (org-level-2 . 1.1)
+                    (org-level-3 . 1.05)
+                    (org-level-4 . 1.0)
+                    (org-level-5 . 1.1)
+                    (org-level-6 . 1.1)
+                    (org-level-7 . 1.1)
+                    (org-level-8 . 1.1)))
+      (let ((font (efs/first-available-font '("Cantarell" "Ubuntu" "DejaVu Sans"))))
+        (if font
+            (set-face-attribute (car face) nil :font font :weight 'regular :height (cdr face))
+          (set-face-attribute (car face) nil :weight 'regular :height (cdr face)))))
+
+    ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+    (set-face-attribute 'org-block nil :foreground 'unspecified :inherit 'fixed-pitch)
+    (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+
+(use-package org
+  :ensure t
+  :mode ("\\.org\\'" . org-mode)
+  :init
+  (setq org-startup-indented t)
+  :hook (org-mode . efs/org-mode-setup)
+  :config
+  (setq org-ellipsis " ▾")
+  (efs/org-font-setup))
+
+(add-hook 'find-file-hook 'my-org-mode-file-hook)
+(defun my-org-mode-file-hook ()
+  (when (string= (file-name-extension buffer-file-name) "org")
+    (org-mode)))
+
+  (use-package org-bullets
+    :after org
+    :hook (org-mode . org-bullets-mode)
+    :custom
+    (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+
+  (defun efs/org-mode-visual-fill ()
+    (setq visual-fill-column-width 100
+          visual-fill-column-center-text t)
+    (visual-fill-column-mode 1))
+
+  (use-package visual-fill-column
+    :hook (org-mode . efs/org-mode-visual-fill))
+
+  ;; Make sure syntax highlighting is enabled globally
+  (global-font-lock-mode 1)
+
+  ;; Load a built-in colorful theme (pick one)
+  (load-theme 'wombat t)
+  ;; alternatives: tango-dark, leuven, tsdh-dark
+
+  (with-eval-after-load 'org
+    ;; Ensure org headings are styled
+    (setq org-fontify-done-headline t
+          org-fontify-quote-and-verse-blocks t
+          org-src-fontify-natively t)
+
+    ;; Explicit heading colors (overrides theme if needed)
+    (custom-set-faces
+     '(org-level-1 ((t (:foreground "#ff79c6" :weight bold :height 1.2))))
+     '(org-level-2 ((t (:foreground "#8be9fd" :weight bold :height 1.1))))
+     '(org-level-3 ((t (:foreground "#50fa7b" :weight bold))))
+     '(org-level-4 ((t (:foreground "#f1fa8c"))))
+     '(org-level-5 ((t (:foreground "#bd93f9"))))
+     '(org-level-6 ((t (:foreground "#ffb86c"))))))
 
 (org-babel-do-load-languages
   'org-babel-load-languages
