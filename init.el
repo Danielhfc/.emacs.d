@@ -179,6 +179,17 @@
   :ensure nil
   :hook (after-init . delete-selection-mode))
 
+;;Hotkeys for org-mode
+ (global-set-key (kbd "C-c l") #'org-store-link)
+     (global-set-key (kbd "C-c a") #'org-agenda)
+     (global-set-key (kbd "C-c c") #'org-capture)
+
+;;Set up magit
+(use-package magit
+  :ensure t
+  :bind (("C-x g" . magit-status)
+         ("C-x C-g" . magit-dispatch)))
+
 ;;Show commands description
 (use-package marginalia
   :ensure t
@@ -196,6 +207,7 @@
 (use-package savehist
   :ensure nil
   :hook (after-init . savehist-mode))
+<<<<<<< HEAD
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -284,3 +296,5 @@
       (org-babel-tangle))))
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+=======
+>>>>>>> 98710e72ae63c9bdba813b4f5e710b25217d591a
