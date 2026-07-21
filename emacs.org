@@ -115,9 +115,6 @@
   ;;Disable scroll bar mode
   (scroll-bar-mode 0)
 
-  ;;Enable completions in the minibuffer
-  (icomplete-vertical-mode 1)
-
   ;;icomplete always show the candidates
   (customize-set-variable 'icomplete-show-matches-on-no-input t)
 
@@ -153,53 +150,73 @@
 #+END_SRC
 
 * Ivy
+
+# #+BEGIN_SRC emacs-lisp
+#   ;;Enable completions in the minibuffer
+#   (icomplete-vertical-mode 1)
+
+#   (use-package ivy
+#     :diminish
+#     :bind (("C-s" . swiper)
+#            :map ivy-minibuffer-map
+#            ("TAB" . ivy-alt-done)
+#            ("C-l" . ivy-next-line)
+#            ("C-k" . ivy-previous-line)
+#            :map ivy-switch-buffer-map
+#            ("C-k" . ivy-previous-line)
+#            ("C-l" . ivy-done)
+#            ("C-d" . ivy-switch-buffer-kill)
+#            :map ivy-reverse-i-search-map
+#            ("C-k" . ivy-previous-line)
+#            ("C-d" . ivy-reverse-i-search-kill))
+#     :config
+#       (ivy-mode 1))
+
+#   (use-package ivy-rich
+#     :init
+#     (ivy-rich-mode 1))
+
+# #+END_SRC
+
+# #+BEGIN_SRC emacs-lisp
+#   (use-package counsel
+#     :bind (("C-M-j" . 'counsel-switch-buffer)
+#            :map minibuffer-local-map
+#            ("C-r" . 'counsel-minibuffer-history))
+#     :config
+#     (counsel-mode 1))
+
+#   (use-package helpful
+#     :custom
+#     (counsel-describe-function-function #'helpful-callable)
+#     (counsel-describe-variable-function #'helpful-variable)
+#     :bind
+#     ([remap describe-function] . counsel-describe-function)
+#     ([remap describe-command] . helpful-command)
+#     ([remap describe-variable] . counsel-describe-variable)
+#     ([remap describe-key] . helpful-key))
+
+
+#   (use-package counsel-projectile
+#     :config (counsel-projectile-mode))
+
+#   (use-package lsp-ivy)
+
+# #+END_SRC
+
+* Vertico
 #+BEGIN_SRC emacs-lisp
-  (use-package ivy
-    :diminish
-    :bind (("C-s" . swiper)
-           :map ivy-minibuffer-map
-           ("TAB" . ivy-alt-done)
-           ("C-l" . ivy-next-line)
-           ("C-k" . ivy-previous-line)
-           :map ivy-switch-buffer-map
-           ("C-k" . ivy-previous-line)
-           ("C-l" . ivy-done)
-           ("C-d" . ivy-switch-buffer-kill)
-           :map ivy-reverse-i-search-map
-           ("C-k" . ivy-previous-line)
-           ("C-d" . ivy-reverse-i-search-kill))
-    :config
-      (ivy-mode 1))
+  (use-package vertico
+  :ensure t
+  :init
+  (vertico-mode))
 
-  (use-package ivy-rich
-    :init
-    (ivy-rich-mode 1))
 
-#+END_SRC
+(use-package consult
+  :ensure t
+  :bind (("C-s" . consult-line)
+         ("C-M-j" . consult-buffer)))
 
-#+BEGIN_SRC emacs-lisp
-  (use-package counsel
-    :bind (("C-M-j" . 'counsel-switch-buffer)
-           :map minibuffer-local-map
-           ("C-r" . 'counsel-minibuffer-history))
-    :config
-    (counsel-mode 1))
-
-  (use-package helpful
-    :custom
-    (counsel-describe-function-function #'helpful-callable)
-    (counsel-describe-variable-function #'helpful-variable)
-    :bind
-    ([remap describe-function] . counsel-describe-function)
-    ([remap describe-command] . helpful-command)
-    ([remap describe-variable] . counsel-describe-variable)
-    ([remap describe-key] . helpful-key))
-
-#+END_SRC
-
-* Commands settings
-
-#+BEGIN_SRC emacs-lisp
   ;;Show commands description
   (use-package marginalia
     :ensure t
@@ -217,13 +234,11 @@
   (use-package savehist
     :ensure nil
     :hook (after-init . savehist-mode))
-  (custom-set-variables
-   ;; custom-set-variables was added by Custom.
-   ;; If you edit it by hand, you could mess it up, so be careful.
-   ;; Your init file should contain only one such instance.
-   ;; If there is more than one, they won't work right.
-   '(package-selected-packages
-     '(evil-nerd-commenter counsel-projectile projectile company-box lsp-ivy lsp-treemacs lsp-ui lsp-mode orderless marginalia)))
+
+#+END_SRC
+* Commands settings
+
+#+BEGIN_SRC emacs-lisp
 
   #+END_SRC
 
@@ -389,8 +404,6 @@ Install magit.
   (use-package lsp-treemacs
     :after lsp)
 
-  (use-package lsp-ivy)
-
   (use-package company
     :after lsp-mode
     :hook (lsp-mode . company-mode)
@@ -416,9 +429,6 @@ Install magit.
     (when (file-directory-p "~/Projects/Code")
       (setq projectile-project-search-path '("~/Projects/Code")))
     (setq projectile-switch-project-action #'projectile-dired))
-
-  (use-package counsel-projectile
-    :config (counsel-projectile-mode))
 
   (use-package evil-nerd-commenter
     :bind ("M-/" . evilnc-comment-or-uncomment-lines))

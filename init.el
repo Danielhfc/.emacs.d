@@ -104,9 +104,6 @@
 ;;Disable scroll bar mode
 (scroll-bar-mode 0)
 
-;;Enable completions in the minibuffer
-(icomplete-vertical-mode 1)
-
 ;;icomplete always show the candidates
 (customize-set-variable 'icomplete-show-matches-on-no-input t)
 
@@ -136,68 +133,36 @@
   :config
   (setq which-key-idle-delay 1))
 
-(use-package ivy
-  :diminish
-  :bind (("C-s" . swiper)
-         :map ivy-minibuffer-map
-         ("TAB" . ivy-alt-done)
-         ("C-l" . ivy-next-line)
-         ("C-k" . ivy-previous-line)
-         :map ivy-switch-buffer-map
-         ("C-k" . ivy-previous-line)
-         ("C-l" . ivy-done)
-         ("C-d" . ivy-switch-buffer-kill)
-         :map ivy-reverse-i-search-map
-         ("C-k" . ivy-previous-line)
-         ("C-d" . ivy-reverse-i-search-kill))
-  :config
-    (ivy-mode 1))
-
-(use-package ivy-rich
+(use-package vertico
+  :ensure t
   :init
-  (ivy-rich-mode 1))
+  (vertico-mode))
 
-(use-package counsel
-  :bind (("C-M-j" . 'counsel-switch-buffer)
-         :map minibuffer-local-map
-         ("C-r" . 'counsel-minibuffer-history))
-  :config
-  (counsel-mode 1))
 
-(use-package helpful
-  :custom
-  (counsel-describe-function-function #'helpful-callable)
-  (counsel-describe-variable-function #'helpful-variable)
-  :bind
-  ([remap describe-function] . counsel-describe-function)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-variable] . counsel-describe-variable)
-  ([remap describe-key] . helpful-key))
-
-;;Show commands description
-(use-package marginalia
+(use-package consult
   :ensure t
-  :hook (after-init . marginalia-mode))
+  :bind (("C-s" . consult-line)
+         ("C-M-j" . consult-buffer)))
 
-;;Show commands even if the order of the words are wrong
-(use-package orderless
-  :ensure t
-  :config
-  (setq completion-styles '(orderless basic))
-  (setq completion-category-defaults nil)
-  (setq completion-category-overrides nil))
+  ;;Show commands description
+  (use-package marginalia
+    :ensure t
+    :hook (after-init . marginalia-mode))
 
-;;Show last used command
-(use-package savehist
-  :ensure nil
-  :hook (after-init . savehist-mode))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(evil-nerd-commenter counsel-projectile projectile company-box lsp-ivy lsp-treemacs lsp-ui lsp-mode orderless marginalia)))
+  ;;Show commands even if the order of the words are wrong
+  (use-package orderless
+    :ensure t
+    :config
+    (setq completion-styles '(orderless basic))
+    (setq completion-category-defaults nil)
+    (setq completion-category-overrides nil))
+
+  ;;Show last used command
+  (use-package savehist
+    :ensure nil
+    :hook (after-init . savehist-mode))
+
+
 
 ;Delete the selected text upon text insertion
 (use-package delsel
@@ -337,8 +302,6 @@
 (use-package lsp-treemacs
   :after lsp)
 
-(use-package lsp-ivy)
-
 (use-package company
   :after lsp-mode
   :hook (lsp-mode . company-mode)
@@ -364,9 +327,6 @@
   (when (file-directory-p "~/Projects/Code")
     (setq projectile-project-search-path '("~/Projects/Code")))
   (setq projectile-switch-project-action #'projectile-dired))
-
-(use-package counsel-projectile
-  :config (counsel-projectile-mode))
 
 (use-package evil-nerd-commenter
   :bind ("M-/" . evilnc-comment-or-uncomment-lines))
