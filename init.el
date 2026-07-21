@@ -138,6 +138,15 @@
   :init
   (vertico-mode))
 
+(use-package vertico-directory
+:after vertico
+:ensure nil ;; This is bundled with vertico, so we don't need to download it
+:bind (:map vertico-map
+            ("RET" . vertico-directory-enter)
+            ("DEL" . vertico-directory-delete-char)
+            ("M-DEL" . vertico-directory-delete-word))
+;; Cleans up the path when you type something like ~/foo//bar
+:hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
 (use-package consult
   :ensure t
@@ -319,7 +328,6 @@
 (use-package projectile
   :diminish projectile-mode
   :config (projectile-mode)
-  :custom ((projectile-completion-system 'ivy))
   :bind-keymap
   ("C-c p" . projectile-command-map)
   :init
