@@ -44,44 +44,44 @@
 
 ;; Tabs to spaces
 (setq-default indent-tabs-mode nil
-	      tab-width 2)
+ 	      tab-width 2)
 
-(setopt tab-always-indent 'complete
-        read-buffer-completion-ignore-case t
-        read-file-name-completion-ignore-case t
+;; (setopt tab-always-indent 'complete
+;;         read-buffer-completion-ignore-case t
+;;         read-file-name-completion-ignore-case t
 
-        ;; This *may* need to be set to 'always just so that you don't
-        ;; miss other possible good completions that match the input
-        ;; string.
-        completion-auto-help t
+;;         ;; This *may* need to be set to 'always just so that you don't
+;;         ;; miss other possible good completions that match the input
+;;         ;; string.
+;;         completion-auto-help t
 
-        ;; Include more information with completion listings
-        completions-detailed t
+;;         ;; Include more information with completion listings
+;;         completions-detailed t
 
-        ;; Move focus to the completions window after hitting tab
-        ;; twice.
-        completion-auto-select 'second-tab
+;;         ;; Move focus to the completions window after hitting tab
+;;         ;; twice.
+;;         completion-auto-select 'second-tab
 
-        ;; If there are 3 or less completion candidates, don't pop up
-        ;; a window, just cycle through them.
-        completion-cycle-threshold 3
+;;         ;; If there are 3 or less completion candidates, don't pop up
+;;         ;; a window, just cycle through them.
+;;         completion-cycle-threshold 3
 
-        ;; Cycle through completion options vertically, not
-        ;; horizontally.
-        completions-format 'vertical
+;;         ;; Cycle through completion options vertically, not
+;;         ;; horizontally.
+;;         completions-format 'vertical
 
-        ;; Sort recently used completions first.
-        ;;completions-sort 'historical
+;;         ;; Sort recently used completions first.
+;;         ;;completions-sort 'historical
 
-        ;; Only show up to 10 lines in the completions window.
-        completions-max-height 10
+;;         ;; Only show up to 10 lines in the completions window.
+;;         completions-max-height 10
 
-        ;; Don't show the unneeded help string at the top of the
-        ;; completions buffer.
-        completion-show-help nil
+;;         ;; Don't show the unneeded help string at the top of the
+;;         ;; completions buffer.
+;;         completion-show-help nil
 
-        ;; Add more `completion-styles' to improve candidate selection.
-        completion-styles '(basic partial-completion substring initials))
+;;         ;; Add more `completion-styles' to improve candidate selection.
+;;         completion-styles '(basic partial-completion substring initials))
 
 (keymap-set minibuffer-local-map "C-p" #'minibuffer-previous-completion)
 (keymap-set minibuffer-local-map "C-n" #'minibuffer-next-completion)
@@ -116,7 +116,7 @@
 ;;Start in fullscreen mode
 (add-hook 'window-setup-hook #'toggle-frame-fullscreen)
 
-(savehist-mode 1)              ;; Save minibuffer history
+;; (savehist-mode 1)              ;; Save minibuffer history
 (column-number-mode 1)         ;; Show column number on mode line
 (global-visual-line-mode 1)    ;; Visually wrap long lines in all buffers
 
@@ -127,7 +127,7 @@
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;; Make vertical window separators look nicer in terminal Emacs
-;; (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
+(set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
 
 ;;Show possible completions for keybinds
 (use-package which-key
@@ -174,11 +174,6 @@
   ([remap describe-variable] . counsel-describe-variable)
   ([remap describe-key] . helpful-key))
 
-;Delete the selected text upon text insertion
-(use-package delsel
-  :ensure nil
-  :hook (after-init . delete-selection-mode))
-
 ;;Show commands description
 (use-package marginalia
   :ensure t
@@ -204,63 +199,10 @@
  '(package-selected-packages
    '(evil-nerd-commenter counsel-projectile projectile company-box lsp-ivy lsp-treemacs lsp-ui lsp-mode orderless marginalia)))
 
-;; Configuration for ide-like when coding
-(defun efs/lsp-mode-setup ()
-  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
-  (lsp-headerline-breadcrumb-mode))
-
-(use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :hook (lsp-mode . efs/lsp-mode-setup)
-  :init
-  (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
-  :config
-  (lsp-enable-which-key-integration t))
-
-(use-package lsp-ui
-  :hook (lsp-mode . lsp-ui-mode)
-  :custom
-  (lsp-ui-doc-position 'bottom))
-
-(use-package lsp-treemacs
-  :after lsp)
-
-(use-package lsp-ivy)
-
-(use-package company
-  :after lsp-mode
-  :hook (lsp-mode . company-mode)
-  :bind (:map company-active-map
-         ("<tab>" . company-complete-selection))
-        (:map lsp-mode-map
-         ("<tab>" . company-indent-or-complete-common))
-  :custom
-  (company-minimum-prefix-length 1)
-  (company-idle-delay 0.0))
-
-(use-package company-box
-  :hook (company-mode . company-box-mode))
-
-(use-package projectile
-  :diminish projectile-mode
-  :config (projectile-mode)
-  :custom ((projectile-completion-system 'ivy))
-  :bind-keymap
-  ("C-c p" . projectile-command-map)
-  :init
-  ;; NOTE: Set this to the folder where you keep your Git repos!
-  (when (file-directory-p "~/Projects/Code")
-    (setq projectile-project-search-path '("~/Projects/Code")))
-  (setq projectile-switch-project-action #'projectile-dired))
-
-(use-package counsel-projectile
-  :config (counsel-projectile-mode))
-
-(use-package evil-nerd-commenter
-  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
-
-(use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode))
+;Delete the selected text upon text insertion
+(use-package delsel
+  :ensure nil
+  :hook (after-init . delete-selection-mode))
 
 (defun efs/first-available-font (fonts)
     "Return the first font in FONTS that is installed, or nil if none are."
@@ -358,12 +300,6 @@
 
 (push '("conf-unix" . conf-unix) org-src-lang-modes)
 
-;;Set up magit
-(use-package magit
-  :ensure t
-  :bind (("C-x g" . magit-status)
-         ("C-x C-g" . magit-dispatch)))
-
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
   (when (string-equal (buffer-file-name)
@@ -373,3 +309,67 @@
       (org-babel-tangle))))
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+
+;;Set up magit
+(use-package magit
+  :ensure t
+  :bind (("C-x g" . magit-status)
+         ("C-x C-g" . magit-dispatch)))
+
+;; Configuration for ide-like when coding
+(defun efs/lsp-mode-setup ()
+  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+  (lsp-headerline-breadcrumb-mode))
+
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :hook (lsp-mode . efs/lsp-mode-setup)
+  :init
+  (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
+  :config
+  (lsp-enable-which-key-integration t))
+
+(use-package lsp-ui
+  :hook (lsp-mode . lsp-ui-mode)
+  :custom
+  (lsp-ui-doc-position 'bottom))
+
+(use-package lsp-treemacs
+  :after lsp)
+
+(use-package lsp-ivy)
+
+(use-package company
+  :after lsp-mode
+  :hook (lsp-mode . company-mode)
+  :bind (:map company-active-map
+         ("<tab>" . company-complete-selection))
+        (:map lsp-mode-map
+         ("<tab>" . company-indent-or-complete-common))
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.0))
+
+(use-package company-box
+  :hook (company-mode . company-box-mode))
+
+(use-package projectile
+  :diminish projectile-mode
+  :config (projectile-mode)
+  :custom ((projectile-completion-system 'ivy))
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :init
+  ;; NOTE: Set this to the folder where you keep your Git repos!
+  (when (file-directory-p "~/Projects/Code")
+    (setq projectile-project-search-path '("~/Projects/Code")))
+  (setq projectile-switch-project-action #'projectile-dired))
+
+(use-package counsel-projectile
+  :config (counsel-projectile-mode))
+
+(use-package evil-nerd-commenter
+  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
