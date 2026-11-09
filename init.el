@@ -151,8 +151,6 @@
 
 (global-set-key (kbd "C-c p F") #'consult-find)
 
-
-
 ;Delete the selected text upon text insertion
 (use-package delsel
   :ensure nil
@@ -346,9 +344,23 @@
   :ensure t
   :bind ("C-c a s" . agent-shell))
 
-;; Always start GitHub Copilot when calling `agent-shell' (set before the
-;; package loads so the agent picker never appears)
 (setq agent-shell-preferred-agent-config 'copilot)
+
+(use-package agent-shell-antigravity
+  :ensure nil
+  :after agent-shell
+  :config
+  ;; 1. Configure Antigravity ACP server (with auto-approve flag)
+ ;;setq agent-shell-antigravity-acp-command
+   ;;   '("agy" "acp" "--dangerously-skip-permissions"))
+
+  ;; 2. Set authentication method
+  ;; Option A: Use Google Account / OAuth login (Recommended)
+  (setq agent-shell-antigravity-authentication
+        (agent-shell-antigravity-make-authentication :login t))
+
+  ;; 3. Automatically choose Antigravity
+  (setq agent-shell-preferred-agent-config 'antigravity))
 
 (with-eval-after-load 'agent-shell
   (push
@@ -371,25 +383,3 @@
   :init (setq markdown-command "pandoc")
   :bind (:map markdown-mode-map
               ("C-c C-e" . markdown-do)))
-
-;; Always work inside the dev container (via TRAMP)
-(require 'tramp)
-(defvar my/dev-container "smart-dev-env-brz-shell")
-(defvar my/dev-compose-dir "/home/daniel/smart-dev-env-brz")
-(defvar my/dev-container-root (format "/docker:%s:/workspace/" my/dev-container))
-
-(defun my/ensure-dev-container ()
-  "Start the dev container if it is not running."
-  (unless (equal "true" (string-trim
-                         (shell-command-to-string
-                          (format "docker inspect -f '{{.State.Running}}' %s 2>/dev/null"
-                                  my/dev-container))))
-    (let ((default-directory my/dev-compose-dir))
-      (call-process "docker" nil nil nil "compose" "up" "-d"))))
-
-(defun my/open-in-container ()
-  (my/ensure-dev-container)
-  (setq default-directory my/dev-container-root)
-  (when (and (null command-line-args-left) (get-buffer "*scratch*"))
-    (dired my/dev-container-root)))
-(add-hook 'emacs-startup-hook #'my/open-in-container)

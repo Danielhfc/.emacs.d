@@ -1,4 +1,4 @@
-\\#+title: Emacs configuration
+#+title: Emacs configuration
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el :mkdirp yes
 
 * Package System Setup
@@ -127,61 +127,6 @@
     (setq which-key-idle-delay 1))
 #+END_SRC
 
-* Ivy (not in use)
-
-# #+BEGIN_SRC emacs-lisp
-#   ;;Enable completions in the minibuffer
-#   (icomplete-vertical-mode 1)
-
-#   (use-package ivy
-#     :diminish
-#     :bind (("C-s" . swiper)
-#            :map ivy-minibuffer-map
-#            ("TAB" . ivy-alt-done)
-#            ("C-l" . ivy-next-line)
-#            ("C-k" . ivy-previous-line)
-#            :map ivy-switch-buffer-map
-#            ("C-k" . ivy-previous-line)
-#            ("C-l" . ivy-done)
-#            ("C-d" . ivy-switch-buffer-kill)
-#            :map ivy-reverse-i-search-map
-#            ("C-k" . ivy-previous-line)
-#            ("C-d" . ivy-reverse-i-search-kill))
-#     :config
-#       (ivy-mode 1))
-
-#   (use-package ivy-rich
-#     :init
-#     (ivy-rich-mode 1))
-
-# #+END_SRC
-
-# #+BEGIN_SRC emacs-lisp
-#   (use-package counsel
-#     :bind (("C-M-j" . 'counsel-switch-buffer)
-#            :map minibuffer-local-map
-#            ("C-r" . 'counsel-minibuffer-history))
-#     :config
-#     (counsel-mode 1))
-
-#   (use-package helpful
-#     :custom
-#     (counsel-describe-function-function #'helpful-callable)
-#     (counsel-describe-variable-function #'helpful-variable)
-#     :bind
-#     ([remap describe-function] . counsel-describe-function)
-#     ([remap describe-command] . helpful-command)
-#     ([remap describe-variable] . counsel-describe-variable)
-#     ([remap describe-key] . helpful-key))
-
-
-#   (use-package counsel-projectile
-#     :config (counsel-projectile-mode))
-
-#   (use-package lsp-ivy)
-
-# #+END_SRC
-
 * Vertico
 #+BEGIN_SRC emacs-lisp
   (use-package vertico
@@ -225,16 +170,10 @@
   (global-set-key (kbd "C-c p F") #'consult-find)
 
 #+END_SRC
-* Commands settings
-
-#+BEGIN_SRC emacs-lisp
-
-#+END_SRC
-
 * Delete selected text
 
 #+BEGIN_SRC emacs-lisp
-                                          ;Delete the selected text upon text insertion
+  ;Delete the selected text upon text insertion
   (use-package delsel
     :ensure nil
     :hook (after-init . delete-selection-mode))
@@ -454,9 +393,11 @@ Install magit.
   (use-package agent-shell
     :ensure t
     :bind ("C-c a s" . agent-shell))
+
+  (setq agent-shell-preferred-agent-config 'copilot)
 #+END_SRC
 
-** COMMENT Antigravity
+* Antigravity
 
 #+BEGIN_SRC emacs-lisp
   (use-package agent-shell-antigravity
@@ -464,8 +405,8 @@ Install magit.
     :after agent-shell
     :config
     ;; 1. Configure Antigravity ACP server (with auto-approve flag)
-    ;;setq agent-shell-antigravity-acp-command
-    ;;   '("agy" "acp" "--dangerously-skip-permissions"))
+   ;;setq agent-shell-antigravity-acp-command
+     ;;   '("agy" "acp" "--dangerously-skip-permissions"))
 
     ;; 2. Set authentication method
     ;; Option A: Use Google Account / OAuth login (Recommended)
@@ -475,16 +416,7 @@ Install magit.
     ;; 3. Automatically choose Antigravity
     (setq agent-shell-preferred-agent-config 'antigravity))
 #+END_SRC
-
-* Copilot
-
-#+BEGIN_SRC emacs-lisp
-  ;; Always start GitHub Copilot when calling `agent-shell' (set before the
-  ;; package loads so the agent picker never appears)
-  (setq agent-shell-preferred-agent-config 'copilot)
-#+END_SRC
-
-** WSL clipboard images
+* WSL clipboard images
 
 Reads the Windows clipboard (e.g. from Win+Shift+S) via powershell.exe.
 
@@ -515,3 +447,57 @@ Reads the Windows clipboard (e.g. from Win+Shift+S) via powershell.exe.
     :bind (:map markdown-mode-map
                 ("C-c C-e" . markdown-do)))
 #+END_SRC
+* Ivy (not in use)
+
+# #+BEGIN_SRC emacs-lisp
+#   ;;Enable completions in the minibuffer
+#   (icomplete-vertical-mode 1)
+
+#   (use-package ivy
+#     :diminish
+#     :bind (("C-s" . swiper)
+#            :map ivy-minibuffer-map
+#            ("TAB" . ivy-alt-done)
+#            ("C-l" . ivy-next-line)
+#            ("C-k" . ivy-previous-line)
+#            :map ivy-switch-buffer-map
+#            ("C-k" . ivy-previous-line)
+#            ("C-l" . ivy-done)
+#            ("C-d" . ivy-switch-buffer-kill)
+#            :map ivy-reverse-i-search-map
+#            ("C-k" . ivy-previous-line)
+#            ("C-d" . ivy-reverse-i-search-kill))
+#     :config
+#       (ivy-mode 1))
+
+#   (use-package ivy-rich
+#     :init
+#     (ivy-rich-mode 1))
+
+# #+END_SRC
+
+# #+BEGIN_SRC emacs-lisp
+#   (use-package counsel
+#     :bind (("C-M-j" . 'counsel-switch-buffer)
+#            :map minibuffer-local-map
+#            ("C-r" . 'counsel-minibuffer-history))
+#     :config
+#     (counsel-mode 1))
+
+#   (use-package helpful
+#     :custom
+#     (counsel-describe-function-function #'helpful-callable)
+#     (counsel-describe-variable-function #'helpful-variable)
+#     :bind
+#     ([remap describe-function] . counsel-describe-function)
+#     ([remap describe-command] . helpful-command)
+#     ([remap describe-variable] . counsel-describe-variable)
+#     ([remap describe-key] . helpful-key))
+
+
+#   (use-package counsel-projectile
+#     :config (counsel-projectile-mode))
+
+#   (use-package lsp-ivy)
+
+# #+END_SRC
